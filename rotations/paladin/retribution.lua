@@ -143,7 +143,7 @@ local Cooldowns = {
 	{'Holy Wrath', 'toggle(aoe)&player.area(8).enemies>=2&player.health<51', 'target'},
 	{'&Avenging Wrath', nil, 'target'},
 	{'&Crusade', 'holypower>=5&!equipped(137048)||{{equipped(137048)||race(Blood Elf)}&holypower>=2}', 'player'},
-	{Trinkets}
+	{Trinkets},
 	{'Light\'s Judgment', 'UI(LJ_check)&range<61&area(15).enemies>=UI(LJ_spin)', 'enemies.ground'}
 }
 
