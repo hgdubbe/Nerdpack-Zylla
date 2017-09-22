@@ -157,7 +157,7 @@ local Trinkets = {
 	{'#trinket1', '{player.buff(Crusade).count>=15||player.area(5).enemies>=3}&trinket1.id == 147012'},
 	--generic trinket wait for crusade
 	{'#trinket1', 'player.spell(Crusade).cooldown>=60&{!trinket1.id == 147011&!trinket1.id == 147012}'},
-	},'UI(trinket1)},
+	},'UI(trinket1)'},
 	{{
 	--Trinket 2
 	--voct
