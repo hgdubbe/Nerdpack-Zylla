@@ -151,22 +151,22 @@ local Trinkets = {
 	{{
 	--Trinket 1
 	--voct
-	{'#trinket1', '{player.buff(Crusade).count>=15||{!player.buff(Crusade)&spell(Crusade).cooldown>=40}}&!combat(player).time<5&boss&trinket1.id == 147011&target.range<8&target.infront'},
-	{'#trinket1', '!boss&trinket1.id == 147011&target.range<8&target.infront'},
+	{'#trinket1', '{player.buff(Crusade).count>=15||{!player.buff(Crusade)&spell(Crusade).cooldown>=40}}&!combat(player).time<5&trinket.id(13) == 147011&target.range<8&target.infront'},
+	--{'#trinket1', '!boss&trinket1.id == 147011&target.range<8&target.infront'},
 	--moonglaives
-	{'#trinket1', '{player.buff(Crusade).count>=15||player.area(5).enemies>=3}&trinket1.id == 147012'},
+	{'#trinket1', '{player.buff(Crusade).count>=15||player.area(5).enemies>=3}&trinket.id(13) == 147012'},
 	--generic trinket wait for crusade
-	{'#trinket1', 'player.spell(Crusade).cooldown>=60&{!trinket1.id == 147011&!trinket1.id == 147012}'},
+	{'#trinket1', 'player.spell(Crusade).cooldown>=60&{!trinket1.id == 147011&!trinket.id(13) == 147012}'},
 	},'UI(trinket1)'},
 	{{
 	--Trinket 2
 	--voct
-	{'#trinket2', '{player.buff(Crusade).count>=15||{!player.buff(Crusade)&spell(Crusade).cooldown>=40}}&!combat(player).time<5&boss&trinket2.id == 147011&target.range<8&target.infront'},
-	{'#trinket2', '!boss&trinket2.id == 147011&target.range<8&target.infront'},
+	{'#trinket2', '{player.buff(Crusade).count>=15||{!player.buff(Crusade)&spell(Crusade).cooldown>=40}}&!combat(player).time<5&trinket.id(14) == 147011&target.range<8&target.infront'},
+	--{'#trinket2', '!boss&trinket2.id == 147011&target.range<8&target.infront'},
 	--moonglaives
-	{'#trinket2', '{player.buff(Crusade).count>=15||player.area(5).enemies>=3}&trinket2.id == 147012'},
+	{'#trinket2', '{player.buff(Crusade).count>=15||player.area(5).enemies>=3}&trinket.id(14) == 147012'},
 	--generic trinket wait for crusade
-	{'#trinket2', 'player.spell(Crusade).cooldown>=60&{!trinket1.id == 147011&!trinket1.id == 147012}'},
+	{'#trinket2', 'player.spell(Crusade).cooldown>=60&{!trinket1.id == 147011&!trinket.id(14) == 147012}'},
 	},'UI(trinket2)'}
 }
 local DS_Castable = {
