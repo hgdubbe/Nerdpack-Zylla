@@ -71,13 +71,10 @@ NeP.DSL:Register('indoors', function()
     return IsIndoors()
 end)
 
-NeP.DSL:Register('trinket1.id', function()
-	return GetInventoryItemID('player', 13)
+NeP.DSL:Register('trinket.id', function(slot)
+	return GetInventoryItemID('player', slot)
 end)	
 
-NeP.DSL:Register('trinket2.id', function()
-	return GetInventoryItemID('player', 14)
-end)
 --------------------------------------------------------------------------------
 --------------------------------SimulationCraft CONDITIONS----------------------
 --------------------------------------------------------------------------------
