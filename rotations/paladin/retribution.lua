@@ -141,11 +141,32 @@ local Cooldowns = {
 	{'Holy Wrath', 'toggle(aoe)&player.area(8).enemies>=2&player.health<51', 'target'},
 	{'&Avenging Wrath', nil, 'target'},
 	{'&Crusade', 'holypower>=5&!equipped(137048)||{{equipped(137048)||race(Blood Elf)}&holypower>=2}', 'player'},
-	{'#trinket1', 'UI(trinket1)'},
-	{'#trinket2', 'UI(trinket2)'},
+	{Trinkets}
 	{'Light\'s Judgment', 'UI(LJ_check)&range<61&area(15).enemies>=UI(LJ_spin)', 'enemies.ground'}
 }
 
+local Trinkets = {
+	{{
+	--Trinket 1
+	--voct
+	{'#trinket1', '{player.buff(Crusade).count>=15||{!player.buff(Crusade)&spell(Crusade).cooldown>=40}}&!combat(player).time<5&boss&trinket1.id == 147011&target.range<8&target.infront'},
+	{'#trinket1', '!boss&trinket1.id == 147011&target.range<8&target.infront'},
+	--moonglaives
+	{'#trinket1', '{player.buff(Crusade).count>=15||player.area(5).enemies>=3}&trinket1.id == 147012'},
+	--generic trinket wait for crusade
+	{'#trinket1', 'player.spell(Crusade).cooldown>=60&{!trinket1.id == 147011&!trinket1.id == 147012}'},
+	},'UI(trinket1)},
+	{{
+	--Trinket 2
+	--voct
+	{'#trinket2', '{player.buff(Crusade).count>=15||{!player.buff(Crusade)&spell(Crusade).cooldown>=40}}&!combat(player).time<5&boss&trinket2.id == 147011&target.range<8&target.infront'},
+	{'#trinket2', '!boss&trinket2.id == 147011&target.range<8&target.infront'},
+	--moonglaives
+	{'#trinket2', '{player.buff(Crusade).count>=15||player.area(5).enemies>=3}&trinket2.id == 147012'},
+	--generic trinket wait for crusade
+	{'#trinket2', 'player.spell(Crusade).cooldown>=60&{!trinket1.id == 147011&!trinket1.id == 147012}'},
+	},'UI(trinket2)}
+}
 local DS_Castable = {
 	{'Divine Storm', 'toggle(aoe)&.debuff(Judgment)&player.buff(Divine Purpose).duration<gcd*2', 'target'},
 	{'Divine Storm', 'toggle(aoe)&.debuff(Judgment)&player.holypower>=5&player.buff(Divine Purpose)', 'target'},
