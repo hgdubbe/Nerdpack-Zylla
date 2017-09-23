@@ -143,7 +143,6 @@ local Cooldowns = {
 	{'Holy Wrath', 'toggle(aoe)&player.area(8).enemies>=2&player.health<51', 'target'},
 	{'&Avenging Wrath', nil, 'target'},
 	{'&Crusade', 'holypower>=5&!equipped(137048)||{{equipped(137048)||race(Blood Elf)}&holypower>=2}', 'player'},
-	{Trinkets},
 	{'Light\'s Judgment', 'UI(LJ_check)&range<61&area(15).enemies>=UI(LJ_spin)', 'enemies.ground'}
 }
 
@@ -156,7 +155,7 @@ local Trinkets = {
 	--moonglaives
 	{'#trinket1', '{player.buff(Crusade).count>=15||player.area(5).enemies>=3}&trinket.id(13) == 147012'},
 	--generic trinket wait for crusade
-	{'#trinket1', 'player.spell(Crusade).cooldown>=60&{!trinket1.id == 147011&!trinket.id(13) == 147012}'},
+	{'#trinket1', 'player.spell(Crusade).cooldown>=60&!{trinket.id(13) == 147011||trinket.id(13) == 147012}}',
 	},'UI(trinket1)'},
 	{{
 	--Trinket 2
@@ -166,7 +165,7 @@ local Trinkets = {
 	--moonglaives
 	{'#trinket2', '{player.buff(Crusade).count>=15||player.area(5).enemies>=3}&trinket.id(14) == 147012'},
 	--generic trinket wait for crusade
-	{'#trinket2', 'player.spell(Crusade).cooldown>=60&{!trinket1.id == 147011&!trinket.id(14) == 147012}'},
+	{'#trinket2', 'player.spell(Crusade).cooldown>=60&!{trinket.id(14) == 147011||trinket.id(14) == 147012}'},
 	},'UI(trinket2)'}
 }
 local DS_Castable = {
@@ -225,6 +224,7 @@ local inCombat = {
 	{Blessings},
 	{Opener, 'inMelee&inFront&xtime<2&{player.spell(Judgment).cooldown<gcd||player.spell(Blade of Justice).cooldown<gcd||player.spell(Wake of Ashes).cooldown<gcd}'},
 	{Mythic_Plus, 'inMelee'},
+	{Trinkets},
 	{Combat, 'enemy&inMelee&inFront'},
 	{Group, 'player.movingfor<0.75&inGroup&toggle(groupAssist)'},
 	{Interrupts_Random, 'toggle(xIntRandom)&toggle(interrupts)&interruptAt(70)'},
