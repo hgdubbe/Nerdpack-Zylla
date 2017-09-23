@@ -1,255 +1,962 @@
 local _, Zylla = ...
+local NeP = _G.NeP
+local _G = _G
+local strmatch = _G.strmatch
+local gsub = _G.gsub
+local IsFlying = _G.IsFlying
+local GetCurrentMapAreaID = _G.GetCurrentMapAreaID
+local IsIndoors = _G.IsIndoors
+local GetUnitSpeed = _G.GetUnitSpeed
+local UnitDebuff = _G.UnitDebuff
+local GetTime = _G.GetTime
+local GetSpellCharges = _G.GetSpellCharges
+local UnitPowerMax = _G.UnitPowerMax
+local UnitPower = _G.UnitPower
+local GetComboPoints = _G.GetComboPoints
+local GetPowerRegen = _G.GetPowerRegen
+local GetSpellInfo = _G.GetSpellInfo
+local IsEquippedItem = _G.IsEquippedItem
+local UnitClass = _G.UnitClass
+local HasTalent = _G.HasTalent
+local UnitBuff = _G.UnitBuff
+local GetSpellCooldown = _G.GetSpellCooldown
+local GetMasteryEffect = _G.GetMasteryEffect
+local GetCritChance = _G.GetCritChance
+local UnitStat = _G.UnitStat
+local GetCombatRatingBonus = _G.GetCombatRatingBonus
+local IsInRaid = _G.IsInRaid
+local IsInGroup = _G.IsInGroup
+local GetInstanceInfo = _G.GetInstanceInfo
+local IsFlyableArea = _G.IsFlyableArea
+local IsSpellKnown = _G.IsSpellKnown
+local IsOnGarrisonMap = _G.C_Garrison.IsOnGarrisonMap
+local IsOnShipyardMap = _G.C_Garrison.IsOnShipyardMap
+local GetSpecialization = _G.GetSpecialization
+local GetHaste = _G.GetHaste
+local UnitGUID = _G.UnitGUID
 
-local Mythic_GUI = _G.Mythic_GUI
-local Mythic_Plus = _G.Mythic_Plus
-local Logo_GUI = _G.Logo_GUI
-local PayPal_GUI = _G.PayPal_GUI
-local PayPal_IMG = _G.PayPal_IMG
-local unpack = _G.unpack
+--------------------------------------------------------------------------------
+-----------------------------------MISC CONDITIONS------------------------------
+--------------------------------------------------------------------------------
 
-local GUI = {
-	unpack(Logo_GUI),
-	-- Header
-	{type = 'header',  	size = 16, text = 'Keybinds',	 																				align = 'center'},
-	{type = 'checkbox',	text = 'Left Shift: '..Zylla.ClassColor..'Pause|r',										align = 'left', 		key = 'lshift', 	default = true},
-	{type = 'checkbox',	text = 'Left Ctrl: '..Zylla.ClassColor..'Divine Steed|r',							align = 'left', 		key = 'lcontrol',	default = true},
-	{type = 'checkbox',	text = 'Left Alt: '..Zylla.ClassColor..'|r',													align = 'left', 		key = 'lalt', 		default = true},
-	{type = 'checkbox',	text = 'Right Alt: '..Zylla.ClassColor..'|r',													align = 'left', 		key = 'ralt', 		default = true},
-	{type = 'spacer'},
---{type = 'checkbox', text = 'Enable Chatoverlay', 																					key = 'chat', 			width = 55, 			default = true, desc = Zylla.ClassColor..'This will enable some messages as an overlay!|r'},
-	unpack(PayPal_GUI),
-	{type = 'spacer'},
-	unpack(PayPal_IMG),
-	{type = 'ruler'},	 	{type = 'spacer'},
-	-- Settings
-	{type = 'header', 	text = 'Class Settings', 																							align = 'center'},
-	{type = 'checkspin',text = 'Light\'s Judgment - Units', 																	key = 'LJ',					spin = 4, step = 1, max = 20, check = true,	desc = Zylla.ClassColor..'World Spell usable on Argus.|r'},
-	{type = 'checkbox', text = 'Blessing of Kings', 																					key = 'BoK', 				default = true},
-	{type = 'checkbox', text = 'Blessing of Wisdom', 																					key = 'BoW', 				default = true, desc = Zylla.ClassColor..'Check to Enable Blessings on yourself.|r'},
-	{type = 'checkbox', text = 'Use Every Man for Himself', 																	key = 'EMfH', 			default = true},
-	{type = 'checkbox', text = 'Use Blessing of Freedom', 																		key = 'BoF', 				default = true},
-	{type = 'checkbox', text = 'Use Trinket #1', 																							key = 'trinket1',		default = true},
-	{type = 'checkbox', text = 'Use Trinket #2', 																							key = 'trinket2', 	default = true,	desc = Zylla.ClassColor..'Trinkets will be used whenever possible!|r'},
-	{type = 'ruler'},		{type = 'spacer'},
-	-- Survival
-	{type = 'header', 	text = 'Survival', 																										align = 'center'},
-	{type = 'checkspin',text = 'Use Gift of the Naaru', 																			key = 'GotN', 		spin = 40, step = 5, max = 100, check = true},
-	{type = 'checkspin',text = 'Use Lay on Hands', 																						key = 'LoH', 			spin = 10, step = 5, max = 100, check = true},
-	{type = 'checkspin',text = 'Use Flash of Light', 																					key = 'FoL', 			spin = 40, step = 5, max = 100, check = true},
-	{type = 'checkspin',text = 'Use Shield of Vengeance', 																		key = 'SoV', 			spin = 75, step = 5, max = 100, check = true},
-	{type = 'checkspin',text = 'Enable Eye for an Eye', 																			key = 'EfaE', 		spin = 90, step = 5, max = 100, check = true},
-	{type = 'checkspin',text = 'Healthstone',																									key = 'HS',				spin = 45, step = 5, max = 100, check = true},
-	{type = 'checkspin',text = 'Healing Potion',																							key = 'AHP',			spin = 45, step = 5, max = 100, check = true},
-	{type = 'ruler'},		{type = 'spacer'},
-	-- Group Assistance
-	{type = 'header', 	text = 'Emergency Group Assistance', 																	align = 'center'},
-	{type = 'checkspin',text = 'Flash of Light', 																							key = 'G_FoL', 		spin = 35, step = 5, max = 100, check = false},
-	{type = 'checkspin',text = 'Lay on Hands', 																								key = 'G_LoH', 		spin = 10, step = 5, max = 100, check = false},
-	{type = 'checkspin',text = 'Blessing of Protection', 																			key = 'G_BoP', 		spin = 10, step = 5, max = 100, check = false},
-	{type = 'checkbox',	text = 'BoP on Tanks',																				key = 'G_BoP_T', default = false},
-	{type = 'checkbox',	text = 'Dispel Party Members',																				key = 'disAll', 	default = true},
-	{type = 'checkbox', text = 'Use Blessing of Freedom', 																		key = 'G_BoF', 		default = false},
-	{type = 'ruler'},		{type = 'spacer'},
-	unpack(Mythic_GUI),
+NeP.DSL:Register('isflyable', function()
+      if IsFlyableArea() then
+         local _, _, _, _, _, _, _, instanceMapID = GetInstanceInfo()
+         local reqSpell = Zylla.flySpells[instanceMapID]
+         if reqSpell then
+            return reqSpell > 0 and IsSpellKnown(reqSpell)
+         elseif not IsOnGarrisonMap() and not IsOnShipyardMap() then
+            return IsSpellKnown(34090) or IsSpellKnown(34091) or IsSpellKnown(90265)
+         end
+      end
+end)
+
+NeP.DSL:Register('nfly', function()
+  return IsFlying()
+end)
+
+NeP.DSL:Register('map_area_id', function()
+    return  GetCurrentMapAreaID()
+end)
+
+NeP.DSL:Register('casting.left', function(target, spell)
+    local reverse = NeP.DSL:Get('casting.percent')(target, spell)
+    if reverse ~= 0 then
+        return 100 - reverse
+    end
+    return 0
+end)
+
+NeP.DSL:Register('indoors', function()
+    return IsIndoors()
+end)
+
+NeP.DSL:Register('trinket.id', function(slot)
+	local trinketid = 0
+	if (slot == '1' or slot == 'trinket1' or slot == 'upper' or slot == '13') then
+		trinketid = GetInventoryItemID('player', '13')
+	elseif (slot == '2' or slot == 'trinket2' or slot == 'lower' or slot == '14') then
+		trinketid = GetInventoryItemID('player', '14')
+	end
+	return trinketid
+end)	
+
+--------------------------------------------------------------------------------
+--------------------------------SimulationCraft CONDITIONS----------------------
+--------------------------------------------------------------------------------
+
+NeP.DSL:Register('buff.react', function(target, spell)
+  local x = NeP.DSL:Get('buff.count')(target, spell)
+  if x == 1 then
+    return true
+  elseif x == 0 then
+    return false
+  else
+    return x
+  end
+end)
+
+NeP.DSL:Register('xmoving', function()
+    local speed = GetUnitSpeed('player')
+    if speed ~= 0 then
+        return 1
+    else
+        return 0
+    end
+end)
+
+--[[
+local classTaunt = {
+  [1] = 'Taunt',
+  [2] = 'Hand of Reckoning',
+  [6] = 'Dark Command',
+  [10] = 'Provoke',
+  [11] = 'Growl',
+  [12] = 'Torment'
+}
+--]]
+
+local PowerT = {
+    [0] = ('^.-Mana'),
+    [1] = ('^.-Rage'),
+    [2] = ('^.-Focus'),
+    [3] = ('^.-Energy'),
 }
 
-local exeOnLoad = function()
-	Zylla.ExeOnLoad()
-	Zylla.AFKCheck()
-	print(Zylla.ClassColor..' ----------------------------------------------------------------------|r')
-	print(Zylla.ClassColor..' --- |rPaladin: |cfff58cbaRETRIBUTION|r')
-	print(Zylla.ClassColor..' --- |rTalents: 1/2 - 2/2 - 3/1 - 4/2 - 5/2 - 6/1 - 7/2|r')
-	print(Zylla.ClassColor..' ----------------------------------------------------------------------|r')
-	print('|cffff0000 Configuration: |rRight-click the MasterToggle and go to Combat Routines Settings|r')
+NeP.DSL:Register('action.cost', function(_, spell)
+    local costText = Zylla.Scan_SpellCost(spell)
+    local numcost = 0
+    for i = 0, 3 do
+        local cost = strmatch(costText, PowerT[i])
+        if cost ~= nil then
+            numcost = gsub(cost, '%D', '') + 0
+        end
+    end
+    if numcost > 0 then
+        return numcost
+    else
+        return 0
+    end
+end)
 
-	NeP.Interface:AddToggle({
-		-- Dispels
-		key = 'dispels',
-		name = 'Cleanse Toxin',
-		text = 'Enable/Disable: Automatic removal of Poison and Diseases',
-		icon = 'Interface\\ICONS\\spell_holy_renew',
-	})
+NeP.DSL:Register('dot.refreshable', function(_, spell)
+    local _,_,_,_,_,duration,expires,_,_,_,spellID = UnitDebuff('target', spell, nil, 'PLAYER|HARMFUL')
+    if spellID and expires then
+        local time_left = expires - GetTime()
+        if time_left < (duration/3) then
+            return true
+        end
+    end
+    return false
+end)
 
-	NeP.Interface:AddToggle({
-		-- Group Healing
-		key = 'groupAssist',
-		name = 'Group Assistance',
-		text = 'Enable/Disable: Automatic LoH/BoP/FoL on Party Members',
-		icon = 'Interface\\ICONS\\spell_shadow_darksummoning',
-	})
+NeP.DSL:Register('dot.duration', function(target, spell)
+    local debuff,_,duration,_,caster = Zylla.UnitDot(target, spell, _)
+    if debuff and (caster == 'player' or caster == 'pet') then
+        return duration
+    end
+    return 0
+end)
 
-	NeP.Interface:AddToggle({
-	 key = 'xIntRandom',
-	 name = 'Interrupt Anyone',
-	 text = 'Interrupt all nearby enemies, without targeting them.',
-	 icon = 'Interface\\Icons\\inv_ammo_arrow_04',
- })
+NeP.DSL:Register('dot.ticking', function(target, spell)
+    if NeP.DSL:Get('debuff')(target, spell) then
+        return true
+    else
+        return false
+    end
+end)
 
-end
+NeP.DSL:Register('dot.remains', function(target, spell)
+    return NeP.DSL:Get('debuff.duration')(target, spell)
+end)
+--[[
+NeP.DSL:Register('dot.ticks_remain', function(target, spell)
+    end)
 
-local Keybinds = {
-	{'%pause', 'keybind(lshift)&UI(lshift)'},
-	{'Divine Steed', 'keybind(lcontrol)', 'player'}
+NeP.DSL:Register('dot.current_ticks', function(target, spell)
+    end)
+
+NeP.DSL:Register('dot.ticks', function(target, spell)
+    end)
+
+NeP.DSL:Register('dot.tick_time_remains', function(target, spell)
+    end)
+
+NeP.DSL:Register('dot.active_dot', function(target, spell)
+    end)
+]]--
+
+NeP.DSL:Register('buff.down', function(target, spell)
+    local x = NeP.DSL:Get('buff.count')(target, spell)
+    if x == 0 then
+        return true
+    elseif x ~= 0 then
+        return false
+    else
+        return x
+    end
+end)
+
+NeP.DSL:Register('buff.up', function(target, spell)
+    local x = NeP.DSL:Get('buff.count')(target, spell)
+    if x == 1 then
+        return true
+    elseif x == 0 then
+        return false
+    else
+        return x
+    end
+end)
+
+NeP.DSL:Register('buff.stack', function(target, spell)
+    return NeP.DSL:Get('buff.count')(target, spell)
+end)
+
+NeP.DSL:Register('buff.remains', function(target, spell)
+    return NeP.DSL:Get('buff.duration')(target, spell)
+end)
+
+NeP.DSL:Register('debuff.up', function(target, spell)
+    local x = NeP.DSL:Get('debuff.count')(target, spell)
+    if x == 1 then
+        return true
+    elseif x == 0 then
+        return false
+    else
+        return x
+    end
+end)
+
+NeP.DSL:Register('debuff.stack', function(target, spell)
+    return NeP.DSL:Get('debuff.count')(target, spell)
+end)
+
+NeP.DSL:Register('debuff.remains', function(target, spell)
+    return NeP.DSL:Get('debuff.duration')(target, spell)
+end)
+
+--TODO: work out off gcd/gcd only skills now all of this is just like SiMC 'prev'
+
+NeP.DSL:Register('prev_off_gcd', function(_, spell)
+    return NeP.DSL:Get('lastcast')('player', spell)
+end)
+
+NeP.DSL:Register('prev_gcd', function(_, spell)
+    return NeP.DSL:Get('lastgcd')('player', spell)
+end)
+
+NeP.DSL:Register('prev', function(_, spell)
+    return NeP.DSL:Get('lastcast')('player', spell)
+        --end
+end)
+
+NeP.DSL:Register('time_to_die', function(target)
+    return NeP.DSL:Get('deathin')(target)
+end)
+
+NeP.DSL:Register('xtime', function()
+    return NeP.DSL:Get('combat.time')('player')
+end)
+
+NeP.DSL:Register('cooldown.remains', function(_, spell)
+    if NeP.DSL:Get('spell.exists')(_, spell) then
+        return NeP.DSL:Get('spell.cooldown')(_, spell)
+    else
+        return 0
+    end
+end)
+
+NeP.DSL:Register('cooldown.up', function(_, spell)
+    if NeP.DSL:Get('spell.exists')(_, spell) then
+        if NeP.DSL:Get('spell.cooldown')(_, spell) == 0 then
+            return true
+        end
+    else
+        return false
+    end
+end)
+
+NeP.DSL:Register('action.cooldown_to_max', function(_, spell)
+    local charges, maxCharges, start, duration = GetSpellCharges(spell)
+    if duration and charges ~= maxCharges then
+        local charges_to_max = maxCharges - ( charges + ((GetTime() - start) / duration))
+        local cooldown = duration * charges_to_max
+        return cooldown
+    else
+        return 0
+    end
+end)
+
+--return GetSpellBaseCooldown(spellID) / 1000
+
+NeP.DSL:Register('action.cooldown', function(_, spell)
+    if NeP.DSL:Get('spell.exists')(_, spell) then
+        return NeP.DSL:Get('spell.cooldown')(_, spell)
+    else
+        return 0
+    end
+end)
+
+NeP.DSL:Register('action.charges', function(_, spell)
+    if NeP.DSL:Get('spell.exists')(_, spell) then
+        return NeP.DSL:Get('spell.charges')(_, spell)
+    else
+        return 0
+    end
+end)
+
+NeP.DSL:Register('cooldown.charges', function(_, spell)
+    if NeP.DSL:Get('spell.exists')(_, spell) then
+        return NeP.DSL:Get('spell.charges')(_, spell)
+    else
+        return 0
+    end
+end)
+
+NeP.DSL:Register('cooldown.recharge_time', function(_, spell)
+    if NeP.DSL:Get('spell.exists')(_, spell) then
+        return NeP.DSL:Get('spell.recharge')(_, spell)
+    else
+        return 0
+    end
+end)
+
+NeP.DSL:Register('charges_fractional', function(_, spell)
+    if NeP.DSL:Get('spell.exists')(_, spell) then
+        return NeP.DSL:Get('spell.charges')(_, spell)
+    else
+        return 0
+    end
+end)
+
+NeP.DSL:Register('spell_haste', function()
+    local shaste = NeP.DSL:Get('haste')('player')
+    return math.floor((100 / ( 100 + shaste )) * 10^3 ) / 10^3
+end)
+
+NeP.DSL:Register('gcd.remains', function()
+    return NeP.DSL:Get('spell.cooldown')('player', '61304')
+end)
+
+NeP.DSL:Register('gcd.max', function()
+    return NeP.DSL:Get('gcd')()
+end)
+
+NeP.DSL:Register('action.execute_time', function(_, spell)
+    return NeP.DSL:Get('execute_time')(_, spell)
+end)
+
+NeP.DSL:Register('execute_time', function(_, spell)
+    if NeP.DSL:Get('spell.exists')(_, spell) then
+        local GCD = NeP.DSL:Get('gcd')()
+        local CTT = NeP.DSL:Get('spell.casttime')(_, spell)
+        if CTT > GCD then
+            return CTT
+        else
+            return GCD
+        end
+    end
+    return false
+end)
+
+NeP.DSL:Register('deficit', function()
+    local max = UnitPowerMax('player')
+    local curr = UnitPower('player')
+    return (max - curr)
+end)
+
+NeP.DSL:Register('energy.deficit', function()
+    return NeP.DSL:Get('deficit')()
+end)
+
+NeP.DSL:Register('focus.deficit', function()
+    return NeP.DSL:Get('deficit')()
+end)
+
+NeP.DSL:Register('rage.deficit', function()
+    return NeP.DSL:Get('deficit')()
+end)
+
+NeP.DSL:Register('astral_power.deficit', function()
+    return NeP.DSL:Get('deficit')()
+end)
+
+NeP.DSL:Register('combo_points.deficit', function(target)
+    return (UnitPowerMax(target, _G.SPELL_POWER_COMBO_POINTS)) - (UnitPower(target, _G.SPELL_POWER_COMBO_POINTS))
+end)
+
+NeP.DSL:Register('combo_points', function()
+    return GetComboPoints('player', 'target')
+end)
+
+NeP.DSL:Register('cast_regen', function(target, spell)
+    local regen = select(2, GetPowerRegen(target))
+    local _, _, _, cast_time = GetSpellInfo(spell)
+    return math.floor(((regen * cast_time) / 1000) * 10^3 ) / 10^3
+end)
+
+NeP.DSL:Register('mana.pct', function()
+    return NeP.DSL:Get('mana')('player')
+end)
+
+--max_energy=1, this means that u will get energy cap in less than one GCD
+
+NeP.DSL:Register('max_energy', function()
+    local ttm = NeP.DSL:Get('energy.time_to_max')()
+    local GCD = NeP.DSL:Get('gcd')()
+    if GCD > ttm then
+        return 1
+    else
+        return false
+    end
+end)
+
+NeP.DSL:Register('energy.regen', function()
+    local eregen = select(2, GetPowerRegen('player'))
+    return eregen
+end)
+
+NeP.DSL:Register('energy.time_to_max', function()
+    local deficit = NeP.DSL:Get('deficit')()
+    local eregen = NeP.DSL:Get('energy.regen')()
+    return deficit / eregen
+end)
+
+NeP.DSL:Register('focus.regen', function()
+    local fregen = select(2, GetPowerRegen('player'))
+    return fregen
+end)
+
+NeP.DSL:Register('focus.time_to_max', function()
+    local deficit = NeP.DSL:Get('deficit')()
+    local fregen = NeP.DSL:Get('focus.regen')('player')
+    return deficit / fregen
+end)
+
+NeP.DSL:Register('astral_power', function()
+    return NeP.DSL:Get('lunarpower')('player')
+end)
+
+NeP.DSL:Register('runic_power', function()
+    return NeP.DSL:Get('runicpower')('player')
+end)
+
+NeP.DSL:Register('holy_power', function()
+    return NeP.DSL:Get('holypower')('player')
+end)
+
+NeP.DSL:Register('action.cast_time', function(_, spell)
+    if NeP.DSL:Get('spell.exists')(_, spell) then
+        return NeP.DSL:Get('spell.casttime')(_, spell)
+    else
+        return 0
+    end
+end)
+
+NeP.DSL:Register('health.pct', function(target)
+    return NeP.DSL:Get('health')(target)
+end)
+
+NeP.DSL:Register('active_enemies', function(unit, distance)
+    return NeP.DSL:Get('area.enemies')(unit, distance)
+end)
+
+NeP.DSL:Register('talent.enabled', function(_, x,y)
+    if NeP.DSL:Get('talent')(_, x,y) then
+        return 1
+    else
+        return 0
+    end
+end)
+
+NeP.DSL:Register('xequipped', function(item)
+    if IsEquippedItem(item) then
+        return 1
+    else
+        return 0
+    end
+end)
+
+NeP.DSL:Register('line_cd', function(_, spell)
+    local spellID = NeP.Core:GetSpellID(spell)
+    if Zylla.spell_timers[spellID] then
+        return GetTime() - Zylla.spell_timers[spellID].time
+    end
+    return 0
+end)
+
+--------------------------------------------------------------------------------
+---------------------------------PROT WARRIOR CONDITIONS------------------------
+--------------------------------------------------------------------------------
+
+NeP.DSL:Register('ignorepain_cost', function()
+    return Zylla.Scan_IgnorePain()
+end)
+
+NeP.DSL:Register('ignorepain_max', function()
+    local ss = NeP.DSL:Get('health.max')('player')
+    if HasTalent(5,2) then
+        return NeP.Core.Round((((77.86412474516502 * 1.70) * ss) / 100))
+    else
+        return NeP.Core.Round(((77.86412474516502 * ss) / 100))
+    end
+end)
+
+--------------------------------------------------------------------------------
+---------------------------------FERAL DRUID CONDITIONS-------------------------
+--------------------------------------------------------------------------------
+
+local DotTicks = {
+    [1] = {
+        [1822] = 3,
+        [1079] = 2,
+        [106832] = 3,
+    },
+    [2] = {
+        [8921] = 2,
+        [155625] = 2,
+    },
+    [3] = {
+        [195452] = 2,
+    },
 }
 
-local Survival = {
-	{'!Flash of Light', 'player.movingfor<0.75&UI(FoL_check)&health<=UI(FoL_spin)', 'player'},
-	{'!Lay on Hands', 'UI(LoH_check)&health<=UI(LoH_spin)', 'player'},
-	{'!Shield of Vengeance', 'UI(SoV_check)&health<=UI(SoV_spin)', 'player'},
-	{'Eye for an Eye', 'UI(EfaE_check)&health<=UI(EfaE_spin)', 'player'},
-	{'&Every Man for Himself', 'UI(EMfH)&state(stun)', 'player'},
-	{'!Blessing of Freedom', 'UI(BoF)&{state(root)||state(snare)}' ,'player'},
-	{'&Gift of the Naaru', 'UI(GotN_check)&health<=UI(GotN_spin)' ,'player'},
-	{'#127834', 'item(127834).usable&item(127834).count>0&health<=UI(AHP_spin)&UI(AHP_check)'}, 		-- Ancient Healing Potion
-	{'#5512', 'item(5512).usable&item(5512).count>0&health<=UI(HS_spin)&UI(HS_check)', 'player'} 		--Health Stone
-}
+NeP.DSL:Register('dot.tick_time', function(_, spell)
+    spell = NeP.Core:GetSpellID(spell)
+    if not spell then return end
+    local class = select(3,UnitClass('player'))
+    if class == 11 and GetSpecialization() == 2 then
+        if NeP.DSL:Get('talent')(nil, '5,3') and DotTicks[1][spell] then
+            return DotTicks[1][spell] * 0.67
+        else
+            if DotTicks[1][spell] then
+                return DotTicks[1][spell]
+            else
+                local tick = DotTicks[2][spell]
+                return math.floor((tick / ((GetHaste() / 100) + 1)) * 10^3 ) / 10^3
+            end
+        end
+    else
+        return DotTicks[3][spell]
+    end
+end)
 
-local Group = {
-	{'!Flash of Light', 'UI(G_FoL_check)&health<=UI(G_FoL_spin)', 'lowest'},
-	{'!Lay on Hands', 'UI(G_LoH_check)&health<=UI(G_LoH_spin)', 'lowest'},
-	{'!Blessing of Protection', 'UI(G_BoP_check)&health<=UI(G_BoP_spin)&UI(G_BoP_T}', 'lowest'},
-	{'!Blessing of Protection', 'UI(G_BoP_check)&health<=UI(G_BoP_spin)&!UI(G_BoP_T}&!lowest.role(tank)', 'lowest'},
-	{'!Blessing of Freedom', 'player.ingroup&target.ingroup&range<41&UI(G_BoF)&{state(root)||state(snare)}' ,'friendly'},
-}
+NeP.DSL:Register('dot.pmultiplier', function(_, spell)
+  return Zylla.f_Snapshots[spell:lower()][UnitGUID('target')] or 0
+end)
 
-local Interrupts = {
-	{'!Rebuke', 'inFront&inMelee', 'target'},
-	{'!Hammer of Justice', '!equipped(137065)&range<20&player.spell(Rebuke).cooldown>gcd&!player.lastgcd(Rebuke)', 'target'},
-	{'!Hammer of Justice', 'equipped(137065)&health>74&range<20&player.spell(Rebuke).cooldown>gcd&!player.lastgcd(Rebuke)', 'target'},
-	{'!Blinding Light', 'range<20&spell(Rebuke).cooldown>gcd&!player.lastgcd(Rebuke)', 'target'},
-	{'!Arcane Torrent', 'inMelee&spell(Rebuke).cooldown>gcd&!player.lastgcd(Rebuke)', 'target'}
-}
+NeP.DSL:Register('persistent_multiplier', function(_, spell)
+  return Zylla.f_Snapshots[spell:lower()].current or 1
+end)
 
-local Interrupts_Random = {
-	{'!Rebuke', 'inFront&inMelee', 'enemies'},
-	{'!Hammer of Justice', '!equipped(137065)&range<20&player.spell(Rebuke).cooldown>gcd&!player.lastgcd(Rebuke)', 'enemies'},
-	{'!Hammer of Justice', 'equipped(137065)&health>74&range<20&player.spell(Rebuke).cooldown>gcd&!player.lastgcd(Rebuke)', 'enemies'},
-	{'!Blinding Light', 'player.spell(Rebuke).cooldown>gcd&!prev_gcd(Rebuke)&!immune(Stun)&inFront&range<20', 'enemies'},
-	{'!Arcane Torrent', 'player.spell(Rebuke).cooldown>gcd&!prev_gcd(Rebuke)&!immune(Stun)&inFront&inMelee', 'enemies'}
-}
+NeP.DSL:Register('f_test', function()	-- This is for debugging purposes.
+	return Zylla.f_Snapshots
+end)
 
-local Dispel = {
-	{'%dispelSelf'},
-	{'%dispelAll', 'UI(DisAll)'}
-}
+--------------------------------------------------------------------------------
+--------------------------------WARLOCK CONDITIONS------------------------------
+--------------------------------------------------------------------------------
 
-local Blessings = {
-	{'Greater Blessing of Kings', 'UI(BoK)&!buff', 'player'},
-	{'Greater Blessing of Wisdom', 'UI(BoW)&!buff', 'player'}
-}
+NeP.DSL:Register('petexists', function()
+  return NeP.DSL:Get('exists')('pet')
+end)
 
-local Cooldowns = {
-	{'&Arcane Torrent', 'player.holypower<=4&{player.buff(Crusade)||player.buff(Avenging Wrath)||xtime<2}', 'target'},
-	{'Holy Wrath', 'toggle(aoe)&player.area(8).enemies>=2&player.health<51', 'target'},
-	{'&Avenging Wrath', nil, 'target'},
-	{'&Crusade', 'holypower>=5&!equipped(137048)||{{equipped(137048)||race(Blood Elf)}&holypower>=2}', 'player'},
-	{'Light\'s Judgment', 'UI(LJ_check)&range<61&area(15).enemies>=UI(LJ_spin)', 'enemies.ground'}
-}
+NeP.DSL:Register('warlock.remaining_duration', function(demon)
+    return Zylla.remaining_duration(demon)
+end)
 
-local Trinkets = {
-	{{
-	--Trinket 1
-	--voct
-	{'#trinket1', '{player.buff(Crusade).count>=15||{!player.buff(Crusade)&spell(Crusade).cooldown>=40}}&!combat(player).time<5&trinket.id(13) == 147011&target.range<8&target.infront'},
-	--{'#trinket1', '!boss&trinket1.id == 147011&target.range<8&target.infront'},
-	--moonglaives
-	{'#trinket1', '{player.buff(Crusade).count>=15||player.area(5).enemies>=3}&trinket.id(13) == 147012'},
-	--generic trinket wait for crusade
-	{'#trinket1', 'player.spell(Crusade).cooldown>=60&!{trinket.id(13) == 147011||trinket.id(13) == 147012}}',
-	},'UI(trinket1)'},
-	{{
-	--Trinket 2
-	--voct
-	{'#trinket2', '{player.buff(Crusade).count>=15||{!player.buff(Crusade)&spell(Crusade).cooldown>=40}}&!combat(player).time<5&trinket.id(14) == 147011&target.range<8&target.infront'},
-	--{'#trinket2', '!boss&trinket2.id == 147011&target.range<8&target.infront'},
-	--moonglaives
-	{'#trinket2', '{player.buff(Crusade).count>=15||player.area(5).enemies>=3}&trinket.id(14) == 147012'},
-	--generic trinket wait for crusade
-	{'#trinket2', 'player.spell(Crusade).cooldown>=60&!{trinket.id(14) == 147011||trinket.id(14) == 147012}'},
-	},'UI(trinket2)'}
-}
-local DS_Castable = {
-	{'Divine Storm', 'toggle(aoe)&.debuff(Judgment)&player.buff(Divine Purpose).duration<gcd*2', 'target'},
-	{'Divine Storm', 'toggle(aoe)&.debuff(Judgment)&player.holypower>=5&player.buff(Divine Purpose)', 'target'},
-	{'Divine Storm', 'toggle(aoe)&.debuff(Judgment)&player.holypower>=5&{!talent(7,2)||player.buff(Crusade).duration>gcd*3}', 'target'},
-	{'Divine Storm', 'toggle(aoe)&player.spell(Wake of Ashes).cooldown<gcd*2', 'target'},
-	{'Divine Storm', 'toggle(aoe)&player.buff(Whisper of the Nathrezim).duration<gcd*1.5&{!talent(7,2)||player.buff(Crusade).duration>gcd*3}', 'target'},
-	{'Divine Storm', 'toggle(aoe)&player.buff(Divine Purpose)', 'target'},	-- Might Get removed...
-	{'Divine Storm', 'toggle(aoe)&player.buff(The Fires of Justice)&{!talent(7,2)||player.buff(Crusade).duration>gcd*3}', 'target'},
-	{'Divine Storm', 'toggle(aoe)&player.holypower>=3&{player.spell(Judgment).cooldown&!debuff(Judgment)}', 'target'} -- Attempt to fix target-issue with Judgment
-}
+NeP.DSL:Register('warlock.count', function(demon)
+    return Zylla.count_active_demon_type(demon)
+end)
 
-local Templar = {
-	{'Templar\'s Verdict', 'debuff(Judgment)&player.buff(Divine Purpose).duration<gcd*2', 'target'},
-	{'Templar\'s Verdict', 'debuff(Judgment)&player.holypower>=5&player.buff(Divine Purpose)', 'target'},
-	{'Templar\'s Verdict', 'debuff(Judgment)&player.holypower>=3&{player.buff(Crusade).stack<15|||player.buff(137048)}', 'target'},
-	{'Templar\'s Verdict', 'debuff(Judgment)&player.holypower>=5&{!equipped(137048)||{equipped(137048)&||player.race(Blood Elf)}}', 'target'},
-	{'Templar\'s Verdict', '{equipped(137020)||debuff(Judgment)}&player.spell(Wake of Ashes).cooldown<gcd*2&{!talent(7,2)||player.buff(Crusade).duration>gcd*3}', 'target'},
-	{'Templar\'s Verdict', 'debuff(Judgment)&player.buff(Whisper of the Nathrezim).duration<gcd*1.5&{{!talent(7,2)||player.buff(Crusade).duration>gcd*3}}', 'target'},
-	{'Templar\'s Verdict', 'player.holypower>=3&{player.spell(Judgment).cooldown&!debuff(Judgment)}', 'target'} -- Attempt to fix target-issue with Judgment
-}
+--------------------------------------------------------------------------------
 
+NeP.DSL:Register('warlock.active_pets_list', function()
+    return Zylla.active_demons
+end)
 
-local Combat = {
-	{DS_Castable, 'player.area(6).enemies>=2||{player.buff(Scarlet Inquisitor\'s Expurgation).stack>=29}&{player.buff(Avenging Wrath)||{player.buff(Crusade).stack>=15}||{player.spell(Crusade).cooldown>15&!player.buff(Crusade)}||player.spell(Avenging Wrath).cooldown>15}'},
-	{Templar},
-	{'Execution Sentence','player.area(6).enemies<=3&{player.spell(Judgment).cooldown<gcd*4.5||debuff(Judgment).duration>gcd*4.5}', 'target'},
-	{'Divine Storm', 'toggle(aoe)&debuff(Judgment)&player.area(6).enemies>=2&player.holypower>=3&{player.buff(Crusade).stack<15||player.buff(137048)}', 'target'},
-	{'Justicar\'s Vengeance', 'debuff(Judgment)&player.buff(Divine Purpose)&!equipped(137020)', 'target'},
-	{'Justicar\'s Vengeance', 'debuff(Judgment)&player.holypower>=5&player.buff(Divine Purpose)&!equipped(137020)', 'target'},
-	{'Judgment', 'debuff(Execution Sentence).duration<gcd*2&debuff(Judgment).duration<gcd*2', 'target'},
-	{'Consecration', 'toggle(aoe)&{player.spell(Blade of Justice).cooldown>gcd*2||player.spell(Divine Hammer).cooldown>gcd*2}'},
-	{'Wake of Ashes', 'toggle(aoe)&{player.holypower==0||player.holypower==1&{player.spell(Blade of Justice).cooldown>gcd||player.spell(Divine Hammer).cooldown>gcd}||player.holypower==2&{{player.spell(Zeal).charges<=0.65||player.spell(Crusader Strike).charges<=0.65}}}', 'target'},
-	{'Blade of Justice', 'player.holypower<=3-set_bonus(T20)', 'target'},
-	{'Divine Hammer', 'toggle(aoe)&player.holypower<=3-set_bonus(T20)', 'target'},
-	{'Hammer of Justice', 'equipped(137065)&health>=75&player.holypower<=4', 'target'},
-	{'Hammer of Justice', 'player.holypower<=5&equipped(137065)&health>74', 'target'},
-	{'Zeal', 'player.spell(Zeal).charges>=1.65&player.holypower<=4&{player.spell(Blade of Justice).cooldown>gcd*2||player.spell(Divine Hammer).cooldown>gcd*2}&debuff(Judgment).duration>gcd', 'target'},
-	{'Zeal', 'player.holypower<=4||{player.spell(Judgment).cooldown&!debuff(Judgment)}', 'target'},
-	{'Crusader Strike', 'player.spell(Crusader Strike).charges>=1.65-talent(2,1).enabled*0.25&player.holypower<=4&{player.spell(Blade of Justice).cooldown>gcd*2||player.spell(Divine Hammer).cooldown>gcd*2}&debuff(Judgment).duration>gcd', 'target'},
-	{'Crusader Strike', 'player.holypower<=4||{player.spell(Judgment).cooldown&!debuff(Judgment)}', 'target'}
-}
+NeP.DSL:Register('warlock.sorted_pets_list', function()
+    return Zylla.demons_sorted
+end)
 
-local Opener = {
-	{'Judgment', 'enemy&range<=30&inFront', 'target'},
-	{'Blade of Justice', 'enemy&range<=12&inFront&{equipped(137048)||player.race(Blood Elf)||player.spell(Wake of Ashes).cooldown}' ,'target'},
-	{'Divine Hammer', 'toggle(aoe)&inMelee&inFront&enemy&{equipped(137048)||player.race(Blood Elf)||player.spell(Wake of Ashes).cooldown}', 'target'},
-	{'Wake of Ashes', 'toggle(aoe)&inMelee&inFront', 'target'}
-}
+NeP.DSL:Register('warlock.demon_count', function()
+    return Zylla.demon_count
+end)
 
-local inCombat = {
-	{Keybinds},
-	{Dispel, 'toggle(dispels)&!player.spell(Cleanse Toxins).cooldown'},
-	{Survival},
-	{Blessings},
-	{Opener, 'inMelee&inFront&xtime<2&{player.spell(Judgment).cooldown<gcd||player.spell(Blade of Justice).cooldown<gcd||player.spell(Wake of Ashes).cooldown<gcd}'},
-	{Mythic_Plus, 'inMelee'},
-	{Trinkets},
-	{Combat, 'enemy&inMelee&inFront'},
-	{Group, 'player.movingfor<0.75&inGroup&toggle(groupAssist)'},
-	{Interrupts_Random, 'toggle(xIntRandom)&toggle(interrupts)&interruptAt(70)'},
-	{Interrupts, 'toggle(interrupts)&interruptAt(70)'},
-	{Cooldowns, 'toggle(cooldowns)&inMelee'}
-}
+--NeP.DSL:Register('warlock.no_de', function(demon)
+-- return Zylla.Empower_no_de(demon)
+--end)
 
-local outCombat = {
-	{Keybinds},
-	{Dispel, 'toggle(dispels)&!spell(Cleanse Toxins).cooldown'},
-	{Interrupts_Random},
-	{Interrupts, 'toggle(interrupts)&inFront&interruptAt(70)'},
-	{Blessings},
-	{Group, 'player.movingfor<0.75&inGroup&toggle(groupAssist)'},
-	{'Flash of Light', 'player.movingfor<0.75&player.health<90&UI(FoL_check)', 'player'}
-}
+NeP.DSL:Register('soul_shard', function()
+    return NeP.DSL:Get('soulshards')('player')
+end)
 
-NeP.CR:Add(70, {
-	name = '[|cff'..Zylla.addonColor..'Zylla\'s|r] Paladin - Retribution',
-	ic = inCombat,
-	ooc = outCombat,
-	gui = GUI,
-	gui_st = {title='Zylla\'s Combat Routines', width='256', height='760', color='A330C9'},
-	ids = Zylla.SpellIDs[Zylla.Class],
-	wow_ver = Zylla.wow_ver,
-	nep_ver = Zylla.nep_ver,
-	load = exeOnLoad
-})
+--------------------------------------------------------------------------------
+-------------------------------- PRIEST CONDITIONS------------------------------
+--------------------------------------------------------------------------------
+
+NeP.DSL:Register('variable.actors_fight_time_mod', function()
+    local time = NeP.DSL:Get('xtime')()
+    local target_time_to_die = NeP.DSL:Get('time_to_die')('target')
+    -- time+target.time_to_die>450&time+target.time_to_die<600
+    if (time + target_time_to_die)>450 and (time + target_time_to_die)<600 then
+        -- -((-(450)+(time+target.time_to_die))%10)
+        return -(( -(450) +( time + target_time_to_die)) / 10)
+            -- time+target.time_to_die<=450
+    elseif time + target_time_to_die<=450 then
+        -- ((450-(time+target.time_to_die))%5)
+        return ((450 - (time + target_time_to_die)) / 5)
+    end
+    return 0
+end)
+
+NeP.DSL:Register('shadowy_apparitions_in_flight', function()
+    local x = Zylla.SA_TOTAL
+    return x
+end)
+
+NeP.DSL:Register('insanity_drain_stacks', function()
+    local x = Zylla.Voidform_Drain_Stacks
+    return x
+end)
+
+NeP.DSL:Register('current_insanity_drain', function()
+    local x = Zylla.Voidform_Current_Drain_Rate
+    return x
+end)
+
+--{current_insanity_drain*gcd.max>player.insanity}&{player.insanity-{current_insanity_drain*gcd.max}+90}<100
+
+--------------------------------------------------------------------------------
+--------------------------------- ROGUE CONDITIONS------------------------------
+--------------------------------------------------------------------------------
+
+NeP.DSL:Register('stealthed', function()
+    if NeP.DSL:Get('buff')('player', 'Shadow Dance') or NeP.DSL:Get('buff')('player', 'Stealth') or NeP.DSL:Get('buff')('player', 'Subterfuge') or NeP.DSL:Get('buff')('player', 'Shadowmeld') or NeP.DSL:Get('buff')('player', 'Prowl') then
+        return true
+    else
+        return false
+    end
+end)
+
+NeP.DSL:Register('variable.ssw_er', function()
+    local range_check
+    if NeP.DSL:Get('range')('target') then
+        range_check = NeP.DSL:Get('range')('target')
+    else
+        range_check = 0
+    end
+    local x = (NeP.DSL:Get('xequipped')('137032') * (10 + (range_check * 0.5)))
+    return x
+end)
+
+NeP.DSL:Register('variable.ed_threshold', function()
+    local x = (NeP.DSL:Get('energy.deficit')()<=((20 + NeP.DSL:Get('talent.enabled')(nil, '3,3')) * (35 + NeP.DSL:Get('talent.enabled')(nil, '7,1')) * (25 + NeP.DSL:Get('variable.ssw_er')())))
+    return x
+end)
+
+NeP.DSL:Register('RtB', function()
+    local int = 0
+    local bearing = false
+    local shark = false
+
+    -- Shark Infested Waters
+    if UnitBuff('player', GetSpellInfo(193357)) then
+        shark = true
+        int = int + 1
+    end
+
+    -- True Bearing
+    if UnitBuff('player', GetSpellInfo(193359)) then
+        bearing = true
+        int = int + 1
+    end
+
+    -- Jolly Roger
+    if UnitBuff('player', GetSpellInfo(199603)) then
+        int = int + 1
+    end
+
+    -- Grand Melee
+    if UnitBuff('player', GetSpellInfo(193358)) then
+        int = int + 1
+    end
+
+    -- Buried Treasure
+    if UnitBuff('player', GetSpellInfo(199600)) then
+        int = int + 1
+    end
+
+    -- Broadsides
+    if UnitBuff('player', GetSpellInfo(193356)) then
+        int = int + 1
+    end
+
+    -- If all six buffs are active:
+    if int == 6 then
+        return true --"LEEEROY JENKINS!"
+
+    -- If two or Shark/Bearing and AR/Curse active:
+    elseif int == 2 or int == 3 or ((bearing or shark) and ((UnitBuff("player", GetSpellInfo(13750)) or UnitDebuff("player", GetSpellInfo(202665))))) then
+        return true --"Keep."
+
+    --[[
+	If only True Bearing
+	elseif bearing then
+	return true --"Keep. AR/Curse if ready."
+    --]]
+
+	-- If only Shark or True Bearing and CDs ready
+    elseif (bearing or shark) and ((GetSpellCooldown(13750) == 0) or (GetSpellCooldown(202665) == 0)) then
+        return true --"AR/Curse NOW and keep!"
+
+	--if we have only ONE bad buff BUT AR/curse is active:
+    elseif int ==1 and ((UnitBuff("player", GetSpellInfo(13750)) or UnitDebuff("player", GetSpellInfo(202665)))) then
+        return true
+
+	-- If only one bad buff:
+    else return false	--"Reroll now!"
+    end
+end)
+
+--------------------------------------------------------------------------------
+--------------------------------- HUNTER CONDITIONS-----------------------------
+--------------------------------------------------------------------------------
+
+NeP.DSL:Register('maxRange', function(spell)
+    local _, _, _, _, _, maxRange = GetSpellInfo(spell)
+    if maxRange == nil then return false end
+    return maxRange
+end)
+
+NeP.DSL:Register('variable.safe_to_build', function()
+    local x = NeP.DSL:Get('debuff')('target','Hunter\'s Mark')
+    local y = NeP.DSL:Get('buff')('player','Trueshot')
+    local z = NeP.DSL:Get('buff')('player','Marking Targets')
+    if x == nil or (y == nil and z == nil) then
+        return true
+    end
+    return false
+end)
+
+NeP.DSL:Register('variable.use_multishot', function()
+    local x = NeP.DSL:Get('buff')('player','Marking Targets')
+    local y = NeP.DSL:Get('buff')('player','Trueshot')
+    local z = NeP.DSL:Get('area.enemies')('target','8')
+    if ((x or y) and z>=1) or (x == nil and y == nil and z>=2) then
+        return true
+    end
+    return false
+end)
+
+NeP.DSL:Register('travel_time', function(unit, spell)
+    return Zylla.TravelTime(unit, spell)
+end)
+
+NeP.DSL:Register('inareaid', function()
+    return  GetCurrentMapAreaID()
+end)
+
+--{'set_bonus(T19)=2||set_bonus(T19)>=4'}
+NeP.DSL:Register("set_bonus", function(_, set)
+	local class = select(2,UnitClass('player'))
+	local pieces = Zylla.setsTable[class][set] or {}
+	local counter = 0
+	for _, itemID in ipairs(pieces) do
+		if IsEquippedItem(itemID) then
+			counter = counter + 1
+			--print(counter)
+		end
+	end
+	return counter
+end)
+
+NeP.DSL:Register('rejuvraid.heals', function()
+    return (((100+GetMasteryEffect())/100)*((100+GetCritChance())/100)*(UnitStat("player", 4))*10)
+end)
+
+NeP.DSL:Register('germraid.heals', function()
+    return (((100+GetMasteryEffect())/100)*((100+GetCritChance())/100)*(UnitStat("player", 4))*4.9/((NeP.DSL:Get('mana')('player')/100)^.66))*3
+end)
+
+NeP.DSL:Register('htraid.heals', function()
+    return (((100+GetMasteryEffect())/100)*((100+GetCritChance())/100)*(UnitStat("player", 4))*4.9/((NeP.DSL:Get('mana')('player')/100)^.4))*1.5
+end)
+
+NeP.DSL:Register('wgraid.heals', function()
+    return (((100+GetMasteryEffect())/100)*((100+GetCritChance())/100)*(UnitStat("player", 4))*4.9)*2
+end)
+
+NeP.DSL:Register('regrowthraid.heals', function()
+    return (((100+GetMasteryEffect())/100)*((100+GetCritChance())/100)*(UnitStat("player", 4))*4.9/((NeP.DSL:Get('mana')('player')/100)^1.25))*5
+end)
+
+NeP.DSL:Register('smraid.heals', function()
+    return (((100+GetMasteryEffect())/100)*((100+GetCritChance())/100)*(UnitStat("player", 4))*4.9)*3
+end)
+
+NeP.DSL:Register('cwraid.heals', function()
+    return math.sqrt((UnitStat("player", 4)*GetMasteryEffect()*8)^2/NeP.DSL:Get('mana')('player'))
+end)
+
+NeP.DSL:Register('rejuvparty.heals', function()
+    return math.sqrt((UnitStat("player", 4)*GetMasteryEffect()*5.5)^2/NeP.DSL:Get('mana')('player'))
+end)
+
+NeP.DSL:Register('htparty.heals', function()
+    return math.sqrt((UnitStat("player", 4)*GetMasteryEffect()*4)^2/NeP.DSL:Get('mana')('player'))
+end)
+
+NeP.DSL:Register('htpartytank.heals', function()
+    return math.sqrt((UnitStat("player", 4)*GetMasteryEffect()*3)^2/NeP.DSL:Get('mana')('player'))
+end)
+
+NeP.DSL:Register('htpartyhealer.heals', function()
+    return math.sqrt((UnitStat("player", 4)*GetMasteryEffect()*3.2)^2/NeP.DSL:Get('mana')('player'))
+end)
+
+NeP.DSL:Register('htpartydamager.heals', function()
+    return math.sqrt((UnitStat("player", 4)*GetMasteryEffect()*3.2)^2/NeP.DSL:Get('mana')('player'))
+end)
+
+NeP.DSL:Register('wgparty.heals', function()
+    return math.sqrt((UnitStat("player", 4)*GetMasteryEffect()*4.5)^2/NeP.DSL:Get('mana')('player'))
+end)
+
+NeP.DSL:Register('regrowthparty.heals', function()
+    return math.sqrt((UnitStat("player", 4)*GetMasteryEffect()*7)^2/NeP.DSL:Get('mana')('player'))
+end)
+
+NeP.DSL:Register('regrowthpartytank.heals', function()
+    return math.sqrt((UnitStat("player", 4)*GetMasteryEffect()*6.6)^2/NeP.DSL:Get('mana')('player'))
+end)
+
+NeP.DSL:Register('regrowthpartyhealer.heals', function()
+    return math.sqrt((UnitStat("player", 4)*GetMasteryEffect()*6.8)^2/NeP.DSL:Get('mana')('player'))
+end)
+
+NeP.DSL:Register('regrowthpartydamager.heals', function()
+    return math.sqrt((UnitStat("player", 4)*GetMasteryEffect()*7)^2/NeP.DSL:Get('mana')('player'))
+end)
+
+NeP.DSL:Register('smparty.heals', function()
+    return math.sqrt((UnitStat("player", 4)*GetMasteryEffect()*6)^2/NeP.DSL:Get('mana')('player'))
+end)
+
+NeP.DSL:Register('cwparty.heals', function()
+    return math.sqrt((UnitStat("player", 4)*GetMasteryEffect()*6)^2/NeP.DSL:Get('mana')('player'))
+end)
+
+NeP.DSL:Register('rejuvsolo.heals', function()
+    return math.sqrt((UnitStat("player", 4)*GetMasteryEffect()*4)^2/NeP.DSL:Get('mana')('player'))
+end)
+
+NeP.DSL:Register('htsolo.heals', function()
+    return math.sqrt((UnitStat("player", 4)*GetMasteryEffect()*3)^2/NeP.DSL:Get('mana')('player'))
+end)
+
+NeP.DSL:Register('wgsolo.heals', function()
+    return math.sqrt((UnitStat("player", 4)*GetMasteryEffect()*5.5)^2/NeP.DSL:Get('mana')('player'))
+end)
+
+NeP.DSL:Register('regrowthsolo.heals', function()
+    return math.sqrt((UnitStat("player", 4)*GetMasteryEffect()*5)^2/NeP.DSL:Get('mana')('player'))
+end)
+
+NeP.DSL:Register('smsolo.heals', function()
+    return math.sqrt((UnitStat("player", 4)*GetMasteryEffect()*5.5)^2/NeP.DSL:Get('mana')('player'))
+end)
+
+NeP.DSL:Register('cwsolo.heals', function()
+    return math.sqrt((UnitStat("player", 4)*GetMasteryEffect()*2)^2/NeP.DSL:Get('mana')('player'))
+end)
+
+NeP.DSL:Register('chainheal.heals', function()
+    return math.sqrt((UnitStat("player", 4)*GetCombatRatingBonus(_G.CR_VERSATILITY_DAMAGE_DONE)*GetCombatRatingBonus(_G.CR_CRIT_SPELL)*1.2)^2/NeP.DSL:Get('mana')('player'))
+end)
+
+NeP.DSL:Register('healingsurge.heals', function()
+    return math.sqrt((UnitStat("player", 4)*GetCombatRatingBonus(_G.CR_VERSATILITY_DAMAGE_DONE)*GetCombatRatingBonus(_G.CR_CRIT_SPELL)*1.44)^2/NeP.DSL:Get('mana')('player'))
+end)
+
+NeP.DSL:Register('healingwave.heals', function()
+    return math.sqrt((UnitStat("player", 4)*GetCombatRatingBonus(_G.CR_VERSATILITY_DAMAGE_DONE)*GetCombatRatingBonus(_G.CR_CRIT_SPELL)*1.44)^2/NeP.DSL:Get('mana')('player'))
+end)
+
+NeP.DSL:Register('riptide.heals', function()
+    return math.sqrt((UnitStat("player", 4)*GetCombatRatingBonus(_G.CR_VERSATILITY_DAMAGE_DONE)*GetCombatRatingBonus(_G.CR_CRIT_SPELL)*1.6)^2/NeP.DSL:Get('mana')('player'))
+end)
+
+NeP.DSL:Register('holyshockraid.heals', function()
+    return (((100+GetMasteryEffect())/100)*((100+GetCritChance())/100)*(UnitStat("player", 4))*3)
+end)
+
+NeP.DSL:Register('holyshockparty.heals', function()
+    return (((100+GetMasteryEffect())/100)*((100+GetCritChance())/100)*(UnitStat("player", 4))*3)
+end)
+
+NeP.DSL:Register('holyshocksolo.heals', function()
+    return (((100+GetMasteryEffect())/100)*((100+GetCritChance())/100)*(UnitStat("player", 4))*3)
+end)
+
+NeP.DSL:Register('bfraid.heals', function()
+    return (((100+GetMasteryEffect())/100)*((100+GetCritChance())/100)*(UnitStat("player", 4))*6)
+end)
+
+NeP.DSL:Register('bfshockparty.heals', function()
+    return (((100+GetMasteryEffect())/100)*((100+GetCritChance())/100)*(UnitStat("player", 4))*6)
+end)
+
+NeP.DSL:Register('bfshocksolo.heals', function()
+    return (((100+GetMasteryEffect())/100)*((100+GetCritChance())/100)*(UnitStat("player", 4))*6)
+end)
+
+NeP.DSL:Register('folraid.heals', function()
+    return (((100+GetMasteryEffect())/100)*((100+GetCritChance())/100)*(UnitStat("player", 4))*7/((NeP.DSL:Get('mana')('player')/100)^.7))
+end)
+
+NeP.DSL:Register('folparty.heals', function()
+    return (((100+GetMasteryEffect())/100)*((100+GetCritChance())/100)*(UnitStat("player", 4))*6.5/((NeP.DSL:Get('mana')('player')/100)^.7))
+end)
+
+NeP.DSL:Register('folsolo.heals', function()
+    return (((100+GetMasteryEffect())/100)*((100+GetCritChance())/100)*(UnitStat("player", 4))*6/((NeP.DSL:Get('mana')('player')/100)^.7))
+end)
+
+NeP.DSL:Register('holiraid.heals', function()
+    return (((100+GetMasteryEffect())/100)*((100+GetCritChance())/100)*(UnitStat("player", 4))*3/((NeP.DSL:Get('mana')('player')/100)^.2))
+end)
+
+NeP.DSL:Register('holiparty.heals', function()
+    return (((100+GetMasteryEffect())/100)*((100+GetCritChance())/100)*(UnitStat("player", 4))*3/((NeP.DSL:Get('mana')('player')/100)^.2))
+end)
+
+NeP.DSL:Register('holisolo.heals', function()
+    return (((100+GetMasteryEffect())/100)*((100+GetCritChance())/100)*(UnitStat("player", 4))*3/((NeP.DSL:Get('mana')('player')/100)^.2))
+end)
+
+NeP.DSL:Register('loh.heals', function()
+    return (NeP.DSL:Get('health.actual')('player')*.8)
+end)
+
+NeP.DSL:Register('lohraidtank.heals', function()
+    return (NeP.DSL:Get('health.actual')('player')*1)
+end)
+
+NeP.DSL:Register('partycheck', function()
+        if IsInRaid() then
+            return 3
+        elseif IsInGroup() then
+            return 2
+        else
+            return 1
+        end
+end)
+
+NeP.DSL:Register('artifact.zenabled', function(_, spell)
+    if select(10,NeP.Artifact:TraitInfo(spell)) then
+        return 1
+    else
+        return 0
+    end
+end)
